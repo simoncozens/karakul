@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "karakul"
+version = "0.0.1"
+description = "A set of FEZ plugins for developing Nastaliq fonts"
+authors = ["Simon Cozens <simon@simon-cozens.org>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.8"
+fez-language = ">=1.3.0"
+fontFeatures = ">=1.7.3"
+fonttools = { git = "https://github.com/simoncozens/fonttools", branch = "variable-arithmetic" }
+babelfont = ">= 3.0.0"
+tqdm = "*"
+kerndeterminer = "*"
+
+[tool.pylint.'MESSAGES CONTROL']
+max-line-length = 120
+disable = "attribute-defined-outside-init,invalid-name"
+
+[build-system]
+requires = ["poetry"]
+build-backend = "poetry.masonry.api"
