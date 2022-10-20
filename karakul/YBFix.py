@@ -209,11 +209,12 @@ class DetectAndSwapYB(FEZVerb):
                 this_dist = self.compute_distance(r, l) / (
                     len(glyphs[0][0]) * len(glyphs[2][0])
                 )
+                if hasattr(this_dist, "default"):
+                    this_dist = this_dist.default
                 if avg_distance:
-                    avg_distance += this_dist
+                    avg_distance = this_dist + avg_distance
                 else:
                     avg_distance = this_dist
-        avg_distance = avg_distance.default
         position1 = Point(avg_distance, 0)
         position2 = Point(0, 0)
         g1 = self.c.get_positioned_glyph(glyphs[1], position1)
