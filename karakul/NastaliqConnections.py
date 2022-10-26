@@ -17,7 +17,7 @@ action: ESCAPED_STRING
 
 FinalSelection_GRAMMAR = """
 ?start: action
-action: ESCAPED_STRING integer_container "->" glyphselector
+action: ESCAPED_STRING glyphselector
 """
 
 
@@ -108,8 +108,7 @@ class FinalSelection(FEZVerb):
         filename = args[0].value[1:-1]
         basedir = os.path.dirname(parser.current_file)
         trypath = os.path.join(basedir, filename)
-        condition = args[1].resolve_as_integer()
-        out_glyphs = args[2].resolve(parser.fontfeatures, parser.font)
+        out_glyphs = args[1].resolve(parser.fontfeatures, parser.font)
 
         if not os.path.exists(trypath):
             trypath = filename
@@ -125,7 +124,7 @@ class FinalSelection(FEZVerb):
                 if left_glyph not in out_glyphs:
                     continue
                 remainder = list(line.items())[1:]
-                prefix = [head+"1" for (head, cond) in remainder if int(cond) == condition]
+                prefix = [head+"1" for (head, cond) in remainder if cond != "1"]
                 rules.append(fontFeatures.Substitution(
                         [[re.sub(r"(sd)?\d+$","1", left_glyph)]],
                         [[left_glyph]],
