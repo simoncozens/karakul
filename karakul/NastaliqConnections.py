@@ -1,5 +1,6 @@
 import os
 import csv
+import re
 import fontFeatures
 import warnings
 
@@ -7,11 +8,20 @@ from fez import FEZVerb
 
 PARSEOPTS = dict(use_helpers=True)
 
-GRAMMAR = """
+GRAMMAR = ""
+
+NastaliqConnections_GRAMMAR = """
 ?start: action
 action: ESCAPED_STRING
 """
-VERBS = ["NastaliqConnections"]
+
+FinalSelection_GRAMMAR = """
+?start: action
+action: ESCAPED_STRING integer_container "->" glyphselector
+"""
+
+
+VERBS = ["NastaliqConnections", "FinalSelection"]
 
 
 def load_rules(trypath, glyphlist, full=False):
@@ -91,3 +101,33 @@ class NastaliqConnections(FEZVerb):
         parser.fontfeatures.namedClasses["reachable_glyphs"] = tuple(sorted(reachable))
 
         return [r]
+
+class FinalSelection(FEZVerb):
+    def action(self, args):
+        parser = self.parser
+        filename = args[0].value[1:-1]
+        basedir = os.path.dirname(parser.current_file)
+        trypath = os.path.join(basedir, filename)
+        condition = args[1].resolve_as_integer()
+        out_glyphs = args[2].resolve(parser.fontfeatures, parser.font)
+
+        if not os.path.exists(trypath):
+            trypath = filename
+            if not os.path.exists(trypath):
+                raise ValueError("Couldn't find connections file %s" % trypath)
+
+        rules = []
+        replacements = {}
+        with open(trypath) as csvfile:
+            reader = csv.DictReader(csvfile)
+            for line in reader:
+                left_glyph = line["Left Glyph"]
+                if left_glyph not in out_glyphs:
+                    continue
+                remainder = list(line.items())[1:]
+                prefix = [head+"1" for (head, cond) in remainder if int(cond) == condition]
+                rules.append(fontFeatures.Substitution(
+                        [[re.sub(r"(sd)?\d+$","1", left_glyph)]],
+                        [[left_glyph]],
+                        precontext=[prefix]))
+        return rules
