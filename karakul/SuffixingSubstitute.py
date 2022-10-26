@@ -15,12 +15,19 @@ VERBS = ["SuffixingSubstitute"]
 class SuffixingSubstitute(FEZVerb):
     def action(self, args):
         parser = self.parser
-        inputs  = [g.resolve(parser.fontfeatures, parser.font) for g in args[:-1]]
+        orig_inputs  = [g.resolve(parser.fontfeatures, parser.font) for g in args[:-1]]
+        inputs = []
         suffix  = args[-1]
         outputs = []
-        for place in inputs:
+        for place in orig_inputs:
             output = []
+            this_input = []
             for g in place:
-                output.append(re.sub(r'\w\d+$', suffix, g))
+                replacement = re.sub(r'\w\d+$', suffix, g)
+                if g not in self.parser.font.exportedGlyphs() or replacement not in self.parser.font.exportedGlyphs():
+                    continue
+                this_input.append(g)
+                output.append(replacement)
             outputs.append(output)
+            inputs.append(this_input)
         return [fontFeatures.Substitution(inputs, outputs)]
