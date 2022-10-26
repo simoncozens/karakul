@@ -50,7 +50,7 @@ class AddSpacedAnchors(FEZVerb):
         glyphs = self.parser.font.exportedGlyphs()
         for g in glyphs:
             if g not in anchors: continue
-            this_anchors = anchors[g]
+            this_anchors = anchors.get(g,{})
             if "top" in this_anchors:
                 topx, topy = this_anchors["top"]
                 this_anchors["top.one"] = topx, topy + spacing
@@ -250,7 +250,7 @@ class DetectAndSwap(FEZVerb):
         # Then do mark attachment
         positions[1]["xAdvance"] = 0
         positions[3]["xAdvance"] = 0
-        anchors = [self.parser.fontfeatures.anchors[g] for g in glyphs]
+        anchors = [self.parser.fontfeatures.anchors.get(g, {}) for g in glyphs]
         match_1 = list(set(anchors[0].keys()) & set(x[1:] for x in anchors[1].keys()))
         if not match_1:
             warnings.warn("No matching anchors for %s/%s" % (glyphs[0], glyphs[1]))
