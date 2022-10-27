@@ -223,10 +223,14 @@ class DetectAndSwapYB(FEZVerb):
 
     def compute_distance(self, r, l):
         fallback_l = (get_xmax_variable(self.parser.font, l), 0)
+        if len(self.parser.font.masters) == 1:
+            fallback_l = (fallback_l[0].default, 0)
         if not "bottom" in self.parser.fontfeatures.anchors[l]:
             logger.warning("%s needs a bottom anchor", l)
+            return 0
         if not "bottom" in self.parser.fontfeatures.anchors[r]:
             logger.warning("%s needs a bottom anchor", r)
+            return 0
         l_distance = (self.parser.fontfeatures.anchors[l].get("entry") or fallback_l)[
             0
         ] - self.parser.fontfeatures.anchors[l]["bottom"][0]
