@@ -62,6 +62,12 @@ def load_rules(trypath, glyphlist, full=False):
         rules["BEm1"]["BEmsd4"] = ["FEf1"] + [x for x in glyphlist if "FEm" in x]
         rules["BEm1"]["BEmsd15"] = ["QAFf1", "VAOf1"]
 
+        if "TEm1" in glyphlist:
+            rules["TEm1"]["TEmsd3"] = ["AINm1", "AINf1"]+ [x for x in glyphlist if "AINm" in x]
+            rules["TEm1"]["TEmsd12"] = ["BEf1", "TEf1"] + [x for x in glyphlist if "BEm" in x or "TEm" in x]
+            rules["TEm1"]["TEmsd10"] = ["SADf1", "TOEf1"] + [x for x in glyphlist if "SADm" in x or "TOEm" in x]
+            rules["TEm1"]["TEmsd4"] = ["FEf1"] + [x for x in glyphlist if "FEm" in x]
+            rules["TEm1"]["TEmsd15"] = ["QAFf1", "VAOf1"]
     return rules
 
 
@@ -90,9 +96,17 @@ class NastaliqConnections(FEZVerb):
 
                 reachable |= set(context)
                 reachable |= set([oldglyph, replacement])
+                # To make this routine re-runnable we need to
+                # find all the left glyphs, not just [mi]1 etc.
+                stem = re.sub(r"(sd)?\d+$", "", oldglyph)
+                oldglyphs = [
+                     g
+                     for g in parser.font.exportedGlyphs()
+                     if g.startswith(stem) and "sd" not in g  # Raised tooth
+                ]
                 r.addRule(
                     fontFeatures.Substitution(
-                        [[oldglyph]],
+                        [oldglyphs],
                         [[replacement]],
                         postcontext=[context],
                         reverse=True,
