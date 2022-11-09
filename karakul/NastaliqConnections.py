@@ -102,7 +102,7 @@ class NastaliqConnections(FEZVerb):
                 oldglyphs = [
                      g
                      for g in parser.font.exportedGlyphs()
-                     if g.startswith(stem) and "sd" not in g  # Raised tooth
+                     if g.startswith(stem)
                 ]
                 r.addRule(
                     fontFeatures.Substitution(
