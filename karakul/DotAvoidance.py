@@ -325,6 +325,10 @@ class DetectAndSwap(FEZVerb):
 
     def generate_glyph_sequence(self, n):
         thin = [x for x in self.parser.font.exportedGlyphs() if get_glyph_metrics(self.parser.font,x)["run"] < max_run and re.search(r"m\d+$", x)]
+        te_schema = "new"
+        if "TEi1" in self.parser.font.exportedGlyphs():
+            warnings.warn("Old TE schema detected")
+            te_schema = "old"
         if self.reverse:
             sda = ["sda"]
             dda = ["dda"]
@@ -359,6 +363,9 @@ class DetectAndSwap(FEZVerb):
             "GAF": ([],[]),
             "LAM": ([],[]),
         }
+        if te_schema == "old":
+            dot_combinations["BE"] = (sda, sdb)
+            dot_combinations["TE"] = (dda+tda+["toeda", "HAMZA_ABOVE"], ddb+tdb)
 
         def dotsfor(t):
             dots = []
