@@ -471,22 +471,6 @@ class BYFixOverhang(FEZVerb):
                 if not adjustment.does_vary:
                     adjustment = adjustment.default
 
-                rules.append(
-                    fontFeatures.Positioning(
-                        [input_[0]],
-                        [fontFeatures.ValueRecord(xAdvance=adjustment)],
-                        postcontext=postcontext,
-                        precontext=[finas + isols],
-                    )
-                )
-                rules.append(
-                    fontFeatures.Positioning(
-                        [input_[0]],
-                        [fontFeatures.ValueRecord(xAdvance=adjustment + space_fudge)],
-                        postcontext=postcontext,
-                        precontext=[["space.urdu"]],
-                    )
-                )
                 if any(new_adjustment.values.values()) > 200:
                     new_adjustment.values = {
                         k: (v-100 if v > 200 else v)
@@ -498,6 +482,14 @@ class BYFixOverhang(FEZVerb):
                         fontFeatures.Positioning(
                             [input_[0]],
                             [fontFeatures.ValueRecord(xAdvance=new_adjustment)],
+                            postcontext=postcontext,
+                        )
+                    )
+                else:
+                    rules.append(
+                        fontFeatures.Positioning(
+                            [input_[0]],
+                            [fontFeatures.ValueRecord(xAdvance=adjustment)],
                             postcontext=postcontext,
                         )
                     )
