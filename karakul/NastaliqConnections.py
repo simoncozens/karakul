@@ -12,7 +12,7 @@ GRAMMAR = ""
 
 NastaliqConnections_GRAMMAR = """
 ?start: action
-action: ESCAPED_STRING
+action: ESCAPED_STRING glyphselector?
 """
 
 FinalSelection_GRAMMAR = """
@@ -75,6 +75,9 @@ class NastaliqConnections(FEZVerb):
     def action(self, args):
         parser = self.parser
         filename = args[0].value[1:-1]
+        fixed_glyphs = []
+        if len(args) == 2:
+            fixed_glyphs = args[1].resolve(parser.fontfeatures, parser.font)
         rules = {}
         reachable = set([])
         basedir = os.path.dirname(parser.current_file)
@@ -102,7 +105,7 @@ class NastaliqConnections(FEZVerb):
                 oldglyphs = [
                      g
                      for g in parser.font.exportedGlyphs()
-                     if g.startswith(stem)
+                     if g.startswith(stem) and g not in fixed_glyphs
                 ]
                 r.addRule(
                     fontFeatures.Substitution(
