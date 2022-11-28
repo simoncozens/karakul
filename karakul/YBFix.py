@@ -70,7 +70,7 @@ class DetectAndSwapYB(FEZVerb):
         self.c = Collidoscope(
             "Gulzar",
             {"marks": True, "bases": False, "faraway": True},
-            ttFont=self.parser.font,
+            babelfont=self.parser.font,
             scale_factor=1.1,
         )
         medis_inits = [
