@@ -37,6 +37,7 @@ import sys
 import warnings
 from glob import glob
 from itertools import product
+import csv
 
 import fontFeatures
 import tqdm
@@ -83,7 +84,7 @@ MAXIMUM_RISE = 600
 # in the OpenType binary.
 KERN_QUANTIZATION = 10
 
-MINIMUM_KERN = -30  # If it's not less than this, don't bother
+MINIMUM_KERN = -20  # If it's not less than this, don't bother
 
 # Only consider sequences of this length - for longer sequences,
 # we start counting height from the *medial* instead of the final.
@@ -97,14 +98,16 @@ def taper_schedule(height):
     baseline, we keep the ink-to-ink distance equal to the target distance,
     but at the left glyph's height increases, there is a gap underneath it,
     and so we taper the kern based on this height to avoid the gap."""
-    if height <= 200:
-        taper = 0
-    elif height == 300:
-        taper = 0.2
-    elif height == 400:
-        taper = 0.5
-    else:
+    if height < 200:
+        taper = 1.0
+    elif height < 300:
+        taper = 0.9
+    elif height < 400:
         taper = 0.8
+    elif height < 500:
+        taper = 0.7
+    else:
+        taper = 0.6
     return taper
 
 
@@ -185,6 +188,7 @@ class NastaliqKerning(FEZVerb):
         routine.flags = 0x04 | 0x08
 
         routines.append(routine)
+        self.debug_csv = csv.writer(open("/tmp/debugkern.csv", "w"))
 
         # We will build our word sequences, from longest to shortest.
         # `i` will count medial and final glyphs, not including the
@@ -329,14 +333,15 @@ class NastaliqKerning(FEZVerb):
                 kern.axes = font.axes
                 for location, targetdistance in self.distance_at_closest.values.items():
                     master = self.master_for_location(location)
-                    space_width = master.get_glyph_layer("space.urdu").width * taper
+                    space_width = master.get_glyph_layer("space.urdu").width
                     right_of_left = max(master.get_glyph_layer(left).rsb, 0)
                     left_of_right = max(master.get_glyph_layer(right).lsb, 0)
                     dist = int(
-                        targetdistance - (right_of_left + left_of_right + space_width)
+                        (space_width * taper) - (right_of_left + left_of_right)
                     )
                     kern.values[location] = dist
                 kern = zero_out_nonnegative_and_quantize(kern, KERN_QUANTIZATION)
+                self.debug_csv.writerow(["ink_to_ink", rise, left, right, str(kern)])
                 if kern.values:
                     if not self.variable:
                         kern = kern.default
@@ -388,6 +393,7 @@ class NastaliqKerning(FEZVerb):
                     )
                     # Only record a kern if we are actually bringing two glyphs closer.
                     kern = zero_out_nonnegative_and_quantize(kern, KERN_QUANTIZATION)
+                    self.debug_csv.writerow(["kern", rise, initial, end_of_previous_word, str(kern)])
                     if kern.values:
                         if not self.variable:
                             kern = kern.default
