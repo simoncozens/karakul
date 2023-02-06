@@ -4,7 +4,7 @@ import logging
 
 import fontFeatures
 from beziers.point import Point
-from collidoscope import Collidoscope
+from collidoscope.babelfont import Collidoscope
 from fez import FEZVerb
 from fontTools.feaLib.variableScalar import Location, VariableScalar
 from glyphtools import bin_glyphs_by_metric
@@ -68,9 +68,8 @@ class DetectAndSwapYB(FEZVerb):
         self.contexts = self.get_contexts()
         self.shelve = shelve.open("ybcollisioncache.db")
         self.c = Collidoscope(
-            "Gulzar",
+            self.parser.font,
             {"marks": True, "bases": False, "faraway": True},
-            babelfont=self.parser.font,
             scale_factor=1.1,
         )
         medis_inits = [
