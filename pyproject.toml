@@ -11,7 +11,7 @@ fez-language = ">=1.3.0"
 fontFeatures = ">=1.7.3"
 fonttools = { git = "https://github.com/simoncozens/fonttools", branch = "variable-arithmetic" }
 babelfont = ">= 3.0.0"
-collidoscope = ">=0.6.2"
+collidoscope = ">=0.6.3"
 tqdm = "*"
 kerndeterminer = "*"
 
