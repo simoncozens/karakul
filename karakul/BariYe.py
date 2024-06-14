@@ -64,7 +64,6 @@ from glyphtools import (
     get_run,
 )
 from fontTools.feaLib.variableScalar import Location, VariableScalar
-from fontFeatures.pathUtils import get_bezier_paths
 from beziers.line import Line
 from beziers.point import Point
 import warnings
@@ -350,7 +349,7 @@ class BYMoveDots(FEZVerb):
 
     def get_yb_clearance(self, parser, bariye):
         font = parser.font
-        paths = get_bezier_paths(font, bariye)
+        raise ValueError("TryToFit strategy temporarily de-implemented")
         path = paths[0]
         bounds = path.bounds()
         x_of_tail = get_rise(font, bariye)
